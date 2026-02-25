@@ -69,6 +69,25 @@ class AuthGroups extends ShieldAuthGroups
         // Reports
         'reports.view'        => 'Dapat melihat laporan',
         'reports.export'      => 'Dapat mengekspor laporan',
+
+        // Master Aplikasi
+        'apps.list'           => 'Dapat melihat daftar aplikasi',
+        'apps.create'         => 'Dapat membuat aplikasi baru',
+        'apps.edit'           => 'Dapat mengedit aplikasi',
+        'apps.delete'         => 'Dapat menghapus aplikasi',
+
+        // Master Kategori
+        'categories.list'     => 'Dapat melihat daftar kategori',
+        'categories.create'   => 'Dapat membuat kategori baru',
+        'categories.edit'     => 'Dapat mengedit kategori',
+        'categories.delete'   => 'Dapat menghapus kategori',
+
+        // Log Maintenance
+        'logs.list'           => 'Dapat melihat daftar log maintenance',
+        'logs.create'         => 'Dapat membuat log maintenance baru',
+        'logs.edit'           => 'Dapat mengedit log maintenance',
+        'logs.delete'         => 'Dapat menghapus log maintenance',
+        'logs.review'         => 'Dapat mereview dan menutup log maintenance',
     ];
 
     /**
@@ -83,6 +102,9 @@ class AuthGroups extends ShieldAuthGroups
             'roles.*',
             'dashboard.*',
             'reports.*',
+            'apps.*',
+            'categories.*',
+            'logs.*',
         ],
         'admin' => [
             'admin.access',
@@ -92,15 +114,25 @@ class AuthGroups extends ShieldAuthGroups
             'users.delete',
             'dashboard.*',
             'reports.*',
+            'apps.*',
+            'categories.*',
+            'logs.*',
         ],
         'manager' => [
             'admin.access',
             'users.list',
             'dashboard.*',
             'reports.*',
+            'apps.list',
+            'categories.list',
+            'logs.list',
+            'logs.review',
         ],
         'user' => [
             'dashboard.access',
+            'logs.list',
+            'logs.create',
+            'logs.edit',
         ],
     ];
 }

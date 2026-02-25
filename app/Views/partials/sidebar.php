@@ -70,6 +70,37 @@ function isDropdownActive(array $paths): string {
       <?php endif; ?>
       <?php endif; ?>
 
+      <!-- Logbook Maintenance -->
+      <?php if ($currentUser->can('logs.list') || $currentUser->can('apps.list') || $currentUser->can('categories.list')): ?>
+      <li class="menu-header">Logbook Maintenance</li>
+
+      <!-- Data Master -->
+      <?php if ($currentUser->can('apps.list') || $currentUser->can('categories.list')): ?>
+      <li class="nav-item dropdown <?= isDropdownActive(['admin/apps', 'admin/categories']) ?>">
+        <a href="#" class="nav-link has-dropdown"><i class="fas fa-database"></i> <span>Data Master</span></a>
+        <ul class="dropdown-menu">
+          <?php if ($currentUser->can('apps.list')): ?>
+          <li class="<?= isMenuActive('admin/apps') ?>">
+            <a class="nav-link" href="<?= base_url('admin/apps') ?>">Master Aplikasi</a>
+          </li>
+          <?php endif; ?>
+          <?php if ($currentUser->can('categories.list')): ?>
+          <li class="<?= isMenuActive('admin/categories') ?>">
+            <a class="nav-link" href="<?= base_url('admin/categories') ?>">Master Kategori</a>
+          </li>
+          <?php endif; ?>
+        </ul>
+      </li>
+      <?php endif; ?>
+
+      <!-- Log Maintenance -->
+      <?php if ($currentUser->can('logs.list')): ?>
+      <li class="<?= isMenuActive('maintenance-logs') ?>">
+        <a class="nav-link" href="<?= base_url('maintenance-logs') ?>"><i class="fas fa-clipboard-list"></i> <span>Log Maintenance</span></a>
+      </li>
+      <?php endif; ?>
+      <?php endif; ?>
+
       <!-- Profil -->
       <li class="menu-header">Akun</li>
       <li class="<?= isMenuActive('profile') ?>">

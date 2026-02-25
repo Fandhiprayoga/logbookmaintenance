@@ -53,5 +53,37 @@ $routes->group('', ['filter' => 'session'], static function ($routes) {
         // Settings
         $routes->get('settings', 'SettingController::index', ['filter' => 'permission:admin.settings']);
         $routes->post('settings/update', 'SettingController::update', ['filter' => 'permission:admin.settings']);
-    });
+
+        // Master Aplikasi
+        $routes->group('apps', static function ($routes) {
+            $routes->get('/', 'AppController::index', ['filter' => 'permission:apps.list']);
+            $routes->get('create', 'AppController::create', ['filter' => 'permission:apps.create']);
+            $routes->post('store', 'AppController::store', ['filter' => 'permission:apps.create']);
+            $routes->get('edit/(:num)', 'AppController::edit/$1', ['filter' => 'permission:apps.edit']);
+            $routes->post('update/(:num)', 'AppController::update/$1', ['filter' => 'permission:apps.edit']);
+            $routes->post('delete/(:num)', 'AppController::delete/$1', ['filter' => 'permission:apps.delete']);
+        });
+
+        // Master Kategori
+        $routes->group('categories', static function ($routes) {
+            $routes->get('/', 'CategoryController::index', ['filter' => 'permission:categories.list']);
+            $routes->get('create', 'CategoryController::create', ['filter' => 'permission:categories.create']);
+            $routes->post('store', 'CategoryController::store', ['filter' => 'permission:categories.create']);
+            $routes->get('edit/(:num)', 'CategoryController::edit/$1', ['filter' => 'permission:categories.edit']);
+            $routes->post('update/(:num)', 'CategoryController::update/$1', ['filter' => 'permission:categories.edit']);
+            $routes->post('delete/(:num)', 'CategoryController::delete/$1', ['filter' => 'permission:categories.delete']);
+        });
+
+        });
+        // Log Maintenance
+        $routes->group('maintenance-logs', static function ($routes) {
+            $routes->get('/', 'MaintenanceLogController::index', ['filter' => 'permission:logs.list']);
+            $routes->get('create', 'MaintenanceLogController::create', ['filter' => 'permission:logs.create']);
+            $routes->post('store', 'MaintenanceLogController::store', ['filter' => 'permission:logs.create']);
+            $routes->get('show/(:num)', 'MaintenanceLogController::show/$1', ['filter' => 'permission:logs.list']);
+            $routes->get('edit/(:num)', 'MaintenanceLogController::edit/$1', ['filter' => 'permission:logs.edit']);
+            $routes->post('update/(:num)', 'MaintenanceLogController::update/$1', ['filter' => 'permission:logs.edit']);
+            $routes->post('update-status/(:num)', 'MaintenanceLogController::updateStatus/$1', ['filter' => 'permission:logs.review']);
+            $routes->post('delete/(:num)', 'MaintenanceLogController::delete/$1', ['filter' => 'permission:logs.delete']);
+        });
 });
