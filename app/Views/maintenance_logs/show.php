@@ -19,11 +19,11 @@
         </h4>
         <div class="card-header-action">
           <?php if (auth()->user()->can('logs.edit')): ?>
-          <a href="<?= base_url('admin/maintenance-logs/edit/' . $log['id']) ?>" class="btn btn-info">
+          <a href="<?= base_url('maintenance-logs/edit/' . $log['id']) ?>" class="btn btn-info">
             <i class="fas fa-edit"></i> Edit
           </a>
           <?php endif; ?>
-          <a href="<?= base_url('admin/maintenance-logs') ?>" class="btn btn-secondary">
+          <a href="<?= base_url('maintenance-logs') ?>" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> Kembali
           </a>
         </div>
@@ -77,7 +77,12 @@
                 <td class="font-weight-bold">Attachment</td>
                 <td>
                   <?php if (!empty($log['attachment'])): ?>
-                    <a href="<?= base_url('admin/maintenance-logs/attachment/' . $log['id']) ?>" target="_blank" class="btn btn-sm btn-outline-primary">
+                    <?php
+                      $attachUrl = base_url('maintenance-logs/attachment/' . $log['id']);
+                      $ext = strtolower(pathinfo($log['attachment'], PATHINFO_EXTENSION));
+                      $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg']);
+                    ?>
+                    <a href="<?= $attachUrl ?>" target="_blank" class="btn btn-sm btn-outline-primary">
                       <i class="fas fa-paperclip"></i> <?= basename($log['attachment']) ?>
                     </a>
                   <?php else: ?>
@@ -90,6 +95,28 @@
         </div>
       </div>
     </div>
+
+    <!-- Preview Attachment Gambar -->
+    <?php if (!empty($log['attachment'])): ?>
+    <?php
+      $attachUrl = base_url('maintenance-logs/attachment/' . $log['id']);
+      $ext = strtolower(pathinfo($log['attachment'], PATHINFO_EXTENSION));
+      $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg']);
+    ?>
+    <?php if ($isImage): ?>
+    <div class="card">
+      <div class="card-header">
+        <h4><i class="fas fa-image text-info"></i> Preview Attachment</h4>
+      </div>
+      <div class="card-body text-center">
+        <a href="<?= $attachUrl ?>" target="_blank">
+          <img src="<?= $attachUrl ?>" alt="Attachment" class="img-fluid rounded shadow" style="max-height: 500px;">
+        </a>
+        <p class="text-muted mt-2"><small>Klik gambar untuk membuka di tab baru</small></p>
+      </div>
+    </div>
+    <?php endif; ?>
+    <?php endif; ?>
 
     <!-- Deskripsi Masalah -->
     <div class="card">
@@ -140,7 +167,7 @@
         <h4><i class="fas fa-clipboard-check text-primary"></i> Update Status (Review)</h4>
       </div>
       <div class="card-body">
-        <form action="<?= base_url('admin/maintenance-logs/update-status/' . $log['id']) ?>" method="post" class="form-inline">
+        <form action="<?= base_url('maintenance-logs/update-status/' . $log['id']) ?>" method="post" class="form-inline">
           <?= csrf_field() ?>
           <div class="form-group mr-3">
             <label for="status" class="mr-2">Ubah Status:</label>

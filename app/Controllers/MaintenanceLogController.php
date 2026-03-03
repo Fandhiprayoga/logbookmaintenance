@@ -237,6 +237,31 @@ class MaintenanceLogController extends BaseController
     }
 
     /**
+     * Serve attachment file
+     */
+    public function attachment(int $id)
+    {
+        $log = $this->logModel->find($id);
+
+        if (! $log || empty($log['attachment'])) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Attachment tidak ditemukan.');
+        }
+
+        $filePath = WRITEPATH . 'uploads/' . $log['attachment'];
+
+        if (! file_exists($filePath)) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('File tidak ditemukan.');
+        }
+
+        $mime = mime_content_type($filePath);
+
+        return $this->response
+            ->setHeader('Content-Type', $mime)
+            ->setHeader('Content-Disposition', 'inline; filename="' . basename($log['attachment']) . '"')
+            ->setBody(file_get_contents($filePath));
+    }
+
+    /**
      * Update status log (untuk review)
      */
     public function updateStatus(int $id)

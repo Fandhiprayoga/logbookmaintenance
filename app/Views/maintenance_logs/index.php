@@ -63,26 +63,28 @@
                       <span class="badge badge-success">Tidak</span>
                     <?php endif; ?>
                   </td>
-                  <td>
-                    <a href="<?= base_url('maintenance-logs/show/' . $log['id']) ?>" class="btn btn-sm btn-primary" title="Detail">
-                      <i class="fas fa-eye"></i>
-                    </a>
+                  <td class="text-center" style="white-space: nowrap;">
+                    <div class="btn-group" role="group">
+                      <a href="<?= base_url('maintenance-logs/show/' . $log['id']) ?>" class="btn btn-sm btn-primary" title="Detail" data-toggle="tooltip">
+                        <i class="fas fa-eye"></i>
+                      </a>
 
-                    <?php if (auth()->user()->can('logs.edit')): ?>
-                    <a href="<?= base_url('maintenance-logs/edit/' . $log['id']) ?>" class="btn btn-sm btn-info" title="Edit">
-                      <i class="fas fa-edit"></i>
-                    </a>
-                    <?php endif; ?>
+                      <?php if (auth()->user()->can('logs.edit')): ?>
+                      <a href="<?= base_url('maintenance-logs/edit/' . $log['id']) ?>" class="btn btn-sm btn-warning" title="Edit" data-toggle="tooltip">
+                        <i class="fas fa-edit"></i>
+                      </a>
+                      <?php endif; ?>
 
-                    <?php if (auth()->user()->can('logs.delete')): ?>
-                    <form action="<?= base_url('maintenance-logs/delete/' . $log['id']) ?>" method="post" class="d-inline"
-                          onsubmit="return confirm('Yakin ingin menghapus log ini?')">
-                      <?= csrf_field() ?>
-                      <button type="submit" class="btn btn-sm btn-danger" title="Hapus">
+                      <?php if (auth()->user()->can('logs.delete')): ?>
+                      <a href="javascript:void(0)" class="btn btn-sm btn-danger" title="Hapus" data-toggle="tooltip"
+                         onclick="if(confirm('Yakin ingin menghapus log ini?')){document.getElementById('delete-log-<?= $log['id'] ?>').submit();}">
                         <i class="fas fa-trash"></i>
-                      </button>
-                    </form>
-                    <?php endif; ?>
+                      </a>
+                      <form id="delete-log-<?= $log['id'] ?>" action="<?= base_url('maintenance-logs/delete/' . $log['id']) ?>" method="post" class="d-none">
+                        <?= csrf_field() ?>
+                      </form>
+                      <?php endif; ?>
+                    </div>
                   </td>
                 </tr>
                 <?php endforeach; ?>

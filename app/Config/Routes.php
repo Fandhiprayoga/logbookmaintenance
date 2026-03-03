@@ -81,6 +81,7 @@ $routes->group('', ['filter' => 'session'], static function ($routes) {
             $routes->get('create', 'MaintenanceLogController::create', ['filter' => 'permission:logs.create']);
             $routes->post('store', 'MaintenanceLogController::store', ['filter' => 'permission:logs.create']);
             $routes->get('show/(:num)', 'MaintenanceLogController::show/$1', ['filter' => 'permission:logs.list']);
+            $routes->get('attachment/(:num)', 'MaintenanceLogController::attachment/$1', ['filter' => 'permission:logs.list']);
             $routes->get('edit/(:num)', 'MaintenanceLogController::edit/$1', ['filter' => 'permission:logs.edit']);
             $routes->post('update/(:num)', 'MaintenanceLogController::update/$1', ['filter' => 'permission:logs.edit']);
             $routes->post('update-status/(:num)', 'MaintenanceLogController::updateStatus/$1', ['filter' => 'permission:logs.review']);
