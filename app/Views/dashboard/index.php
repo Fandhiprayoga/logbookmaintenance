@@ -2,354 +2,338 @@
 $currentUser = auth()->user();
 $groups = $currentUser->getGroups();
 $groupLabel = !empty($groups) ? ucfirst($groups[0]) : 'User';
+
+$scopeLabel = $isAdmin ? 'Semua Ticket' : 'Ticket Saya';
+$recentLimit = 5;
+$statusTotal = max(1, (int) $totalLogs);
+$pendingPct = (int) round(($pendingLogs / $statusTotal) * 100);
+$progressPct = (int) round(($progressLogs / $statusTotal) * 100);
+$testingPct = (int) round(($testingLogs / $statusTotal) * 100);
+$completedPct = (int) round(($completedLogs / $statusTotal) * 100);
 ?>
 
-<h2 class="section-title">Selamat Datang, <?= esc($currentUser->username) ?>!</h2>
-<p class="section-lead">Anda login sebagai <strong><?= $groupLabel ?></strong>.</p>
+<style>
+  .modern-dashboard {
+    --md-border: #e7edf4;
+    --md-bg-soft: #f7fafe;
+    --md-text: #1f2937;
+    --md-muted: #6b7280;
+  }
+  .modern-dashboard .hero-card,
+  .modern-dashboard .panel-card {
+    border: 1px solid var(--md-border);
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .modern-dashboard .hero-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f7fbff 100%);
+  }
+  .modern-dashboard .hero-body {
+    padding: 18px;
+  }
+  .modern-dashboard .hero-title {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--md-text);
+  }
+  .modern-dashboard .hero-subtitle {
+    color: var(--md-muted);
+    margin-top: 6px;
+  }
+  .modern-dashboard .hero-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .modern-dashboard .metric-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .modern-dashboard .metric-item {
+    border: 1px solid var(--md-border);
+    border-radius: 12px;
+    background: var(--md-bg-soft);
+    padding: 12px;
+  }
+  .modern-dashboard .metric-label {
+    color: var(--md-muted);
+    font-size: 12px;
+  }
+  .modern-dashboard .metric-value {
+    margin-top: 6px;
+    color: var(--md-text);
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+  .modern-dashboard .panel-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--md-border);
+    background: #fff;
+  }
+  .modern-dashboard .panel-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--md-text);
+  }
+  .modern-dashboard .panel-body {
+    padding: 14px 16px;
+  }
+  .modern-dashboard .status-list {
+    display: grid;
+    gap: 10px;
+  }
+  .modern-dashboard .status-row .label-line {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--md-muted);
+    margin-bottom: 6px;
+  }
+  .modern-dashboard .table td,
+  .modern-dashboard .table th {
+    vertical-align: middle;
+  }
+  .modern-dashboard .quick-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .modern-dashboard .quick-link {
+    display: block;
+    border: 1px solid var(--md-border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    color: var(--md-text);
+    text-decoration: none;
+    background: #fff;
+    transition: all 0.2s ease;
+  }
+  .modern-dashboard .quick-link:hover {
+    text-decoration: none;
+    border-color: #c9d8ea;
+    background: var(--md-bg-soft);
+  }
+  .modern-dashboard .quick-link .icon {
+    color: #4b5563;
+    margin-right: 6px;
+  }
+  @media (max-width: 991.98px) {
+    .modern-dashboard .hero-actions {
+      justify-content: flex-start;
+      margin-top: 10px;
+    }
+    .modern-dashboard .metric-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .modern-dashboard .quick-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
 
-<!-- Statistik Sistem (Admin) -->
-<div class="row">
-  <?php if($currentUser->can('users.list')):?>
-  <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-    <div class="card card-statistic-1">
-      <div class="card-icon bg-primary">
-        <i class="far fa-user"></i>
-      </div>
-      <div class="card-wrap">
-        <div class="card-header">
-          <h4>Total Users</h4>
+<div class="modern-dashboard">
+  <div class="hero-card">
+    <div class="hero-body">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <h2 class="hero-title">Selamat Datang, <?= esc($currentUser->username) ?></h2>
+          <div class="hero-subtitle">
+            Role: <strong><?= $groupLabel ?></strong> • Scope Monitoring: <strong><?= $scopeLabel ?></strong>
+          </div>
         </div>
-        <div class="card-body">
-          <?php
-            $userModel = new \CodeIgniter\Shield\Models\UserModel();
-            echo $userModel->countAllResults();
-          ?>
-        </div>
-      </div>
-    </div>
-  </div>
-  <?php endif; ?>
-  <?php if($currentUser->can('roles.list')): ?>
-  <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-    <div class="card card-statistic-1">
-      <div class="card-icon bg-danger">
-        <i class="fas fa-user-shield"></i>
-      </div>
-      <div class="card-wrap">
-        <div class="card-header">
-          <h4>Total Roles</h4>
-        </div>
-        <div class="card-body">
-          <?= count(config('AuthGroups')->groups) ?>
+        <div class="col-md-4">
+          <div class="hero-actions">
+            <?php if ($currentUser->can('logs.create')): ?>
+            <a href="<?= base_url('maintenance-logs/create') ?>" class="btn btn-primary btn-sm">
+              <i class="fas fa-plus-circle"></i> Ticket Baru
+            </a>
+            <?php endif; ?>
+            <?php if ($currentUser->can('logs.list')): ?>
+            <a href="<?= base_url('maintenance-logs') ?>" class="btn btn-light border btn-sm">
+              <i class="fas fa-clipboard-list"></i> Buka Board
+            </a>
+            <?php endif; ?>
+          </div>
         </div>
       </div>
     </div>
   </div>
-  <?php endif; ?>
-  <?php if ($currentUser->can('apps.list')): ?>
-  <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-    <div class="card card-statistic-1">
-      <div class="card-icon bg-info">
-        <i class="fas fa-server"></i>
-      </div>
-      <div class="card-wrap">
-        <div class="card-header">
-          <h4>Master Aplikasi</h4>
-        </div>
-        <div class="card-body">
-          <?= $totalApps ?>
-        </div>
-      </div>
-    </div>
-  </div>
-  <?php endif; ?>
-  <?php if ($currentUser->can('categories.list')): ?>
-  <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-    <div class="card card-statistic-1">
-      <div class="card-icon bg-success">
-        <i class="fas fa-tags"></i>
-      </div>
-      <div class="card-wrap">
-        <div class="card-header">
-          <h4>Master Kategori</h4>
-        </div>
-        <div class="card-body">
-          <?= $totalCategories ?>
-        </div>
-      </div>
-    </div>
-  </div>
-  <?php endif; ?>
-</div>
 
-<!-- Statistik Log Maintenance -->
-<?php if ($currentUser->can('logs.list')): ?>
-<h2 class="section-title">
-  Statistik Log Maintenance
-  <?php if ($isAdmin): ?>
-    <small class="text-muted">(Semua Data)</small>
-  <?php else: ?>
-    <small class="text-muted">(Data Saya)</small>
-  <?php endif; ?>
-</h2>
+  <?php if ($currentUser->can('logs.list')): ?>
+  <div class="metric-grid mb-3">
+    <div class="metric-item">
+      <div class="metric-label">Total Ticket</div>
+      <div class="metric-value"><?= $totalLogs ?></div>
+    </div>
+    <div class="metric-item">
+      <div class="metric-label">Aktif (Pending+Progress+Testing)</div>
+      <div class="metric-value"><?= $activeLogs ?></div>
+    </div>
+    <div class="metric-item">
+      <div class="metric-label">Selesai</div>
+      <div class="metric-value"><?= $completedLogs ?></div>
+    </div>
+    <div class="metric-item">
+      <div class="metric-label">Completion Rate</div>
+      <div class="metric-value"><?= $completionRate ?>%</div>
+    </div>
+  </div>
 
-<div class="row">
-  <div class="col-lg-3 col-md-4 col-sm-6 col-12">
-    <div class="card card-statistic-1">
-      <div class="card-icon bg-primary">
-        <i class="fas fa-clipboard-list"></i>
-      </div>
-      <div class="card-wrap">
-        <div class="card-header">
-          <h4>Total Log</h4>
+  <div class="row">
+    <div class="col-lg-5">
+      <div class="panel-card">
+        <div class="panel-head">
+          <h3 class="panel-title">Status Monitoring</h3>
+          <span class="badge badge-light"><?= $scopeLabel ?></span>
         </div>
-        <div class="card-body">
-          <?= $totalLogs ?>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="col-lg-3 col-md-4 col-sm-6 col-12">
-    <div class="card card-statistic-1">
-      <div class="card-icon bg-warning">
-        <i class="fas fa-clock"></i>
-      </div>
-      <div class="card-wrap">
-        <div class="card-header">
-          <h4>Pending</h4>
-        </div>
-        <div class="card-body">
-          <?= $pendingLogs ?>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="col-lg-3 col-md-4 col-sm-6 col-12">
-    <div class="card card-statistic-1">
-      <div class="card-icon bg-info">
-        <i class="fas fa-spinner"></i>
-      </div>
-      <div class="card-wrap">
-        <div class="card-header">
-          <h4>On Progress</h4>
-        </div>
-        <div class="card-body">
-          <?= $progressLogs ?>
+        <div class="panel-body">
+          <div class="status-list">
+            <div class="status-row">
+              <div class="label-line"><span>Pending</span><span><?= $pendingLogs ?> (<?= $pendingPct ?>%)</span></div>
+              <div class="progress" style="height:7px;"><div class="progress-bar bg-warning" style="width: <?= $pendingPct ?>%"></div></div>
+            </div>
+            <div class="status-row">
+              <div class="label-line"><span>On Progress</span><span><?= $progressLogs ?> (<?= $progressPct ?>%)</span></div>
+              <div class="progress" style="height:7px;"><div class="progress-bar bg-info" style="width: <?= $progressPct ?>%"></div></div>
+            </div>
+            <div class="status-row">
+              <div class="label-line"><span>Testing</span><span><?= $testingLogs ?> (<?= $testingPct ?>%)</span></div>
+              <div class="progress" style="height:7px;"><div class="progress-bar" style="background:#4b5563;width: <?= $testingPct ?>%"></div></div>
+            </div>
+            <div class="status-row">
+              <div class="label-line"><span>Completed</span><span><?= $completedLogs ?> (<?= $completedPct ?>%)</span></div>
+              <div class="progress" style="height:7px;"><div class="progress-bar bg-success" style="width: <?= $completedPct ?>%"></div></div>
+            </div>
+            <div class="status-row">
+              <div class="label-line"><span>Ticket Berdampak Downtime</span><span><?= $downtimeLogs ?></span></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  <div class="col-lg-3 col-md-4 col-sm-6 col-12">
-    <div class="card card-statistic-1">
-      <div class="card-icon" style="background-color: #6f42c1;">
-        <i class="fas fa-vial"></i>
-      </div>
-      <div class="card-wrap">
-        <div class="card-header">
-          <h4>Testing</h4>
-        </div>
-        <div class="card-body">
-          <?= $testingLogs ?>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="col-lg-3 col-md-4 col-sm-6 col-12">
-    <div class="card card-statistic-1">
-      <div class="card-icon bg-success">
-        <i class="fas fa-check-circle"></i>
-      </div>
-      <div class="card-wrap">
-        <div class="card-header">
-          <h4>Completed</h4>
-        </div>
-        <div class="card-body">
-          <?= $completedLogs ?>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="col-lg-3 col-md-4 col-sm-6 col-12">
-    <div class="card card-statistic-1">
-      <div class="card-icon bg-danger">
-        <i class="fas fa-exclamation-triangle"></i>
-      </div>
-      <div class="card-wrap">
-        <div class="card-header">
-          <h4>Downtime</h4>
-        </div>
-        <div class="card-body">
-          <?= $downtimeLogs ?>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
 
-<!-- Tabel Log Terbaru -->
-<div class="row">
-  <div class="col-12">
-    <div class="card">
-      <div class="card-header">
-        <h4>
-          Log Maintenance Terbaru
-          <?php if ($isAdmin): ?>
-            <small class="text-muted">(Semua User)</small>
-          <?php endif; ?>
-        </h4>
-        <div class="card-header-action">
-          <a href="<?= base_url('maintenance-logs') ?>" class="btn btn-primary">
-            Lihat Semua <i class="fas fa-chevron-right"></i>
-          </a>
+    <div class="col-lg-7">
+      <div class="panel-card">
+        <div class="panel-head">
+          <h3 class="panel-title">Ticket Terbaru (<?= $recentLimit ?>)</h3>
+          <a href="<?= base_url('maintenance-logs') ?>" class="btn btn-light border btn-sm">Lihat Semua</a>
         </div>
-      </div>
-      <div class="card-body p-0">
-        <div class="table-responsive">
-          <table class="table table-striped mb-0">
-            <thead>
-              <tr>
-                <th>Tanggal</th>
-                <th>Aplikasi</th>
-                <th>Kategori</th>
-                <th>Judul</th>
-                <th>Status</th>
-                <th>Downtime</th>
-              </tr>
-            </thead>
-            <tbody>
-              <?php if (!empty($recentLogs)): ?>
-                <?php foreach ($recentLogs as $log): ?>
+        <div class="panel-body p-0">
+          <div class="table-responsive">
+            <table class="table table-striped mb-0">
+              <thead>
                 <tr>
-                  <td><?= date('d/m/Y H:i', strtotime($log['maintenance_date'])) ?></td>
-                  <td><span class="badge badge-light"><?= esc($log['app_name'] ?? '-') ?></span></td>
-                  <td><span class="badge badge-info"><?= esc($log['category_name'] ?? '-') ?></span></td>
-                  <td>
-                    <a href="<?= base_url('maintenance-logs/show/' . $log['id']) ?>"><?= esc($log['title']) ?></a>
-                  </td>
-                  <td>
-                    <?php
-                      $statusClass = match($log['status']) {
-                        'Pending'     => 'badge-warning',
-                        'On Progress' => 'badge-info',
-                        'Testing'     => 'badge-primary',
-                        'Completed'   => 'badge-success',
-                        default       => 'badge-secondary',
-                      };
-                    ?>
-                    <span class="badge <?= $statusClass ?>"><?= esc($log['status']) ?></span>
-                  </td>
-                  <td>
-                    <?php if ($log['has_downtime']): ?>
-                      <span class="badge badge-danger"><?= $log['downtime_duration'] ? $log['downtime_duration'] . 'm' : 'Ya' ?></span>
-                    <?php else: ?>
-                      <span class="text-muted">-</span>
-                    <?php endif; ?>
-                  </td>
+                  <th>Tanggal</th>
+                  <th>Judul</th>
+                  <th>Status</th>
+                  <th>Downtime</th>
                 </tr>
-                <?php endforeach; ?>
-              <?php else: ?>
-                <tr>
-                  <td colspan="6" class="text-center p-4">Belum ada log maintenance.</td>
-                </tr>
-              <?php endif; ?>
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                <?php if (! empty($recentLogs)): ?>
+                  <?php foreach ($recentLogs as $log): ?>
+                  <tr>
+                    <td><?= date('d/m/Y H:i', strtotime($log['maintenance_date'])) ?></td>
+                    <td>
+                      <a href="<?= base_url('maintenance-logs/show/' . $log['id']) ?>" class="font-weight-600"><?= esc($log['title']) ?></a><br>
+                      <small class="text-muted"><?= esc($log['app_name'] ?? '-') ?> • <?= esc($log['category_name'] ?? '-') ?></small>
+                    </td>
+                    <td>
+                      <?php
+                        $statusClass = match($log['status']) {
+                          'Pending'     => 'badge-warning',
+                          'On Progress' => 'badge-info',
+                          'Testing'     => 'badge-primary',
+                          'Completed'   => 'badge-success',
+                          default       => 'badge-secondary',
+                        };
+                      ?>
+                      <span class="badge <?= $statusClass ?>"><?= esc($log['status']) ?></span>
+                    </td>
+                    <td>
+                      <?php if ((int) $log['has_downtime'] === 1): ?>
+                        <span class="badge badge-danger"><?= $log['downtime_duration'] ? $log['downtime_duration'] . 'm' : 'Ya' ?></span>
+                      <?php else: ?>
+                        <span class="text-muted">-</span>
+                      <?php endif; ?>
+                    </td>
+                  </tr>
+                  <?php endforeach; ?>
+                <?php else: ?>
+                  <tr>
+                    <td colspan="4" class="text-center p-4 text-muted">Belum ada data ticket.</td>
+                  </tr>
+                <?php endif; ?>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
-<?php endif; ?>
+  <?php endif; ?>
 
-
-
-<div class="row">
-  <div class="col-12 col-md-6">
-    <div class="card">
-      <div class="card-header">
-        <h4>Informasi Akun</h4>
-      </div>
-      <div class="card-body">
-        <div class="table-responsive">
-          <table class="table table-striped">
-            <tr>
-              <th>Username</th>
-              <td><?= esc($currentUser->username) ?></td>
-            </tr>
-            <tr>
-              <th>Email</th>
-              <td><?= esc($currentUser->email) ?></td>
-            </tr>
+  <div class="row">
+    <div class="col-lg-4">
+      <div class="panel-card">
+        <div class="panel-head"><h3 class="panel-title">Ringkasan Akun</h3></div>
+        <div class="panel-body">
+          <table class="table table-sm table-borderless mb-0">
+            <tr><th width="110">Username</th><td><?= esc($currentUser->username) ?></td></tr>
+            <tr><th>Email</th><td><?= esc($currentUser->email) ?></td></tr>
             <tr>
               <th>Role</th>
               <td>
                 <?php foreach ($groups as $group): ?>
-                  <span class="badge badge-primary"><?= ucfirst($group) ?></span>
+                  <span class="badge badge-primary mr-1"><?= ucfirst($group) ?></span>
                 <?php endforeach; ?>
               </td>
             </tr>
-            <tr>
-              <th>Status</th>
-              <td><span class="badge badge-success">Aktif</span></td>
-            </tr>
+            <tr><th>Status</th><td><span class="badge badge-success">Aktif</span></td></tr>
           </table>
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="col-12 col-md-6">
-    <div class="card">
-      <div class="card-header">
-        <h4>Akses Cepat</h4>
-      </div>
-      <div class="card-body">
-        <div class="row">
-          <?php if ($currentUser->can('users.list')): ?>
-          <div class="col-6 mb-3">
-            <a href="<?= base_url('admin/users') ?>" class="btn btn-primary btn-block">
-              <i class="fas fa-users"></i><br>Manajemen User
-            </a>
+    <div class="col-lg-8">
+      <div class="panel-card">
+        <div class="panel-head"><h3 class="panel-title">Quick Access</h3></div>
+        <div class="panel-body">
+          <div class="quick-grid">
+            <?php if ($currentUser->can('logs.list')): ?>
+            <a href="<?= base_url('maintenance-logs') ?>" class="quick-link"><i class="fas fa-clipboard-list icon"></i> Board Ticketing</a>
+            <?php endif; ?>
+            <?php if ($currentUser->can('logs.create')): ?>
+            <a href="<?= base_url('maintenance-logs/create') ?>" class="quick-link"><i class="fas fa-plus-circle icon"></i> Buat Ticket Baru</a>
+            <?php endif; ?>
+            <?php if ($currentUser->can('apps.list')): ?>
+            <a href="<?= base_url('admin/apps') ?>" class="quick-link"><i class="fas fa-server icon"></i> Master Aplikasi (<?= $totalApps ?>)</a>
+            <?php endif; ?>
+            <?php if ($currentUser->can('categories.list')): ?>
+            <a href="<?= base_url('admin/categories') ?>" class="quick-link"><i class="fas fa-tags icon"></i> Master Kategori (<?= $totalCategories ?>)</a>
+            <?php endif; ?>
+            <?php if ($currentUser->can('users.list')): ?>
+            <a href="<?= base_url('admin/users') ?>" class="quick-link"><i class="fas fa-users icon"></i> Manajemen User (<?= (int) ($totalUsers ?? 0) ?>)</a>
+            <?php endif; ?>
+            <?php if ($currentUser->inGroup('superadmin')): ?>
+            <a href="<?= base_url('admin/roles') ?>" class="quick-link"><i class="fas fa-user-shield icon"></i> Role & Permission</a>
+            <?php endif; ?>
+            <a href="<?= base_url('profile') ?>" class="quick-link"><i class="far fa-user icon"></i> Profil Saya</a>
+            <?php if ($currentUser->can('admin.settings')): ?>
+            <a href="<?= base_url('admin/settings') ?>" class="quick-link"><i class="fas fa-cog icon"></i> Pengaturan Sistem</a>
+            <?php endif; ?>
           </div>
-          <?php endif; ?>
-
-          <?php if ($currentUser->inGroup('superadmin')): ?>
-          <div class="col-6 mb-3">
-            <a href="<?= base_url('admin/roles') ?>" class="btn btn-danger btn-block">
-              <i class="fas fa-user-shield"></i><br>Role & Permission
-            </a>
-          </div>
-          <?php endif; ?>
-
-          <div class="col-6 mb-3">
-            <a href="<?= base_url('profile') ?>" class="btn btn-info btn-block">
-              <i class="far fa-user"></i><br>Profil Saya
-            </a>
-          </div>
-
-          <?php if ($currentUser->can('logs.create')): ?>
-          <div class="col-6 mb-3">
-            <a href="<?= base_url('maintenance-logs/create') ?>" class="btn btn-success btn-block">
-              <i class="fas fa-plus-circle"></i><br>Tambah Log
-            </a>
-          </div>
-          <?php endif; ?>
-
-          <?php if ($currentUser->can('logs.list')): ?>
-          <div class="col-6 mb-3">
-            <a href="<?= base_url('maintenance-logs') ?>" class="btn btn-primary btn-block">
-              <i class="fas fa-clipboard-list"></i><br>Log Maintenance
-            </a>
-          </div>
-          <?php endif; ?>
-
-          <?php if ($currentUser->can('admin.settings')): ?>
-          <div class="col-6 mb-3">
-            <a href="<?= base_url('admin/settings') ?>" class="btn btn-warning btn-block">
-              <i class="fas fa-cog"></i><br>Pengaturan
-            </a>
-          </div>
-          <?php endif; ?>
         </div>
       </div>
     </div>

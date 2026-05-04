@@ -5,38 +5,53 @@ namespace App\Controllers;
 use App\Models\MaintenanceLogModel;
 use App\Models\AppModel;
 use App\Models\CategoryModel;
+use CodeIgniter\Shield\Models\UserModel;
 
 class DashboardController extends BaseController
 {
     public function index()
     {
         $user = auth()->user();
-        $logModel = new MaintenanceLogModel();
         $appModel = new AppModel();
         $categoryModel = new CategoryModel();
 
-        // Jika punya admin.access → statistik semua log, jika tidak → hanya log milik sendiri
+        // Jika punya admin.access -> statistik semua ticket, jika tidak -> hanya ticket milik sendiri.
         $isAdmin = $user->can('admin.access');
 
-        if ($isAdmin) {
-            $baseQuery = $logModel;
-        } else {
-            $baseQuery = $logModel->where('created_by', $user->id);
-        }
+        $countLogs = static function (bool $isAdmin, int $userId, ?string $status = null, ?int $hasDowntime = null): int {
+            $query = new MaintenanceLogModel();
 
-        // Hitung statistik per status
-        $totalLogs     = (clone $baseQuery)->countAllResults(false);
-        $pendingLogs   = (clone $baseQuery)->where('status', 'Pending')->countAllResults(false);
-        $progressLogs  = (clone $baseQuery)->where('status', 'On Progress')->countAllResults(false);
-        $testingLogs   = (clone $baseQuery)->where('status', 'Testing')->countAllResults(false);
-        $completedLogs = (clone $baseQuery)->where('status', 'Completed')->countAllResults(false);
-        $downtimeLogs  = (clone $baseQuery)->where('has_downtime', 1)->countAllResults(false);
+            if (! $isAdmin) {
+                $query->where('created_by', $userId);
+            }
+
+            if ($status !== null) {
+                $query->where('status', $status);
+            }
+
+            if ($hasDowntime !== null) {
+                $query->where('has_downtime', $hasDowntime);
+            }
+
+            return $query->countAllResults();
+        };
+
+        // Statistik utama ticketing
+        $totalLogs     = $countLogs($isAdmin, (int) $user->id);
+        $pendingLogs   = $countLogs($isAdmin, (int) $user->id, 'Pending');
+        $progressLogs  = $countLogs($isAdmin, (int) $user->id, 'On Progress');
+        $testingLogs   = $countLogs($isAdmin, (int) $user->id, 'Testing');
+        $completedLogs = $countLogs($isAdmin, (int) $user->id, 'Completed');
+        $downtimeLogs  = $countLogs($isAdmin, (int) $user->id, null, 1);
+        $activeLogs    = $pendingLogs + $progressLogs + $testingLogs;
+        $completionRate = $totalLogs > 0 ? (int) round(($completedLogs / $totalLogs) * 100) : 0;
 
         // Total aplikasi & kategori
         $totalApps       = $appModel->countAllResults();
         $totalCategories = $categoryModel->countAllResults();
+        $totalUsers      = $user->can('users.list') ? (new UserModel())->countAllResults() : null;
 
-        // 5 log terbaru
+        // Ticket terbaru
         if ($isAdmin) {
             $recentLogs = (new MaintenanceLogModel())
                 ->select('maintenance_logs.*, apps.name as app_name, categories.name as category_name')
@@ -67,9 +82,12 @@ class DashboardController extends BaseController
             'progressLogs'    => $progressLogs,
             'testingLogs'     => $testingLogs,
             'completedLogs'   => $completedLogs,
+            'activeLogs'      => $activeLogs,
+            'completionRate'  => $completionRate,
             'downtimeLogs'    => $downtimeLogs,
             'totalApps'       => $totalApps,
             'totalCategories' => $totalCategories,
+            'totalUsers'      => $totalUsers,
             'recentLogs'      => $recentLogs,
         ];
 
