@@ -90,4 +90,13 @@ $routes->group('', ['filter' => 'session'], static function ($routes) {
             $routes->post('reopen-ticket/(:num)', 'MaintenanceLogController::reopenTicket/$1', ['filter' => 'permission:logs.review']);
             $routes->post('delete/(:num)', 'MaintenanceLogController::delete/$1', ['filter' => 'permission:logs.delete']);
         });
+
+        // Log Kerjaan Harian (To-Do)
+        $routes->group('daily-work-logs', static function ($routes) {
+            $routes->get('/', 'DailyWorkLogController::index');
+            $routes->post('store', 'DailyWorkLogController::store');
+            $routes->post('toggle/(:num)', 'DailyWorkLogController::toggle/$1');
+            $routes->post('reorder', 'DailyWorkLogController::reorder');
+            $routes->post('delete/(:num)', 'DailyWorkLogController::delete/$1');
+        });
 });

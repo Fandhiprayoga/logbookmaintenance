@@ -99,6 +99,10 @@ function isDropdownActive(array $paths): string {
         <a class="nav-link" href="<?= base_url('maintenance-logs') ?>"><i class="fas fa-clipboard-list"></i> <span>Ticketing</span></a>
       </li>
       <?php endif; ?>
+
+      <li class="<?= isMenuActive('daily-work-logs') ?>">
+        <a class="nav-link" href="<?= base_url('daily-work-logs') ?>"><i class="fas fa-tasks"></i> <span>Log Kerjaan Harian</span></a>
+      </li>
       <?php endif; ?>
 
       <!-- Profil -->
