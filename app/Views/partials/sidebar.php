@@ -93,10 +93,10 @@ function isDropdownActive(array $paths): string {
       </li>
       <?php endif; ?>
 
-      <!-- Log Maintenance -->
+      <!-- Ticketing -->
       <?php if ($currentUser->can('logs.list')): ?>
       <li class="<?= isMenuActive('maintenance-logs') ?>">
-        <a class="nav-link" href="<?= base_url('maintenance-logs') ?>"><i class="fas fa-clipboard-list"></i> <span>Log Maintenance</span></a>
+        <a class="nav-link" href="<?= base_url('maintenance-logs') ?>"><i class="fas fa-clipboard-list"></i> <span>Ticketing</span></a>
       </li>
       <?php endif; ?>
       <?php endif; ?>

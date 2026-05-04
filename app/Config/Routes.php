@@ -78,6 +78,7 @@ $routes->group('', ['filter' => 'session'], static function ($routes) {
         // Log Maintenance
         $routes->group('maintenance-logs', static function ($routes) {
             $routes->get('/', 'MaintenanceLogController::index', ['filter' => 'permission:logs.list']);
+            $routes->get('data', 'MaintenanceLogController::data', ['filter' => 'permission:logs.list']);
             $routes->get('create', 'MaintenanceLogController::create', ['filter' => 'permission:logs.create']);
             $routes->post('store', 'MaintenanceLogController::store', ['filter' => 'permission:logs.create']);
             $routes->get('show/(:num)', 'MaintenanceLogController::show/$1', ['filter' => 'permission:logs.list']);
@@ -85,6 +86,8 @@ $routes->group('', ['filter' => 'session'], static function ($routes) {
             $routes->get('edit/(:num)', 'MaintenanceLogController::edit/$1', ['filter' => 'permission:logs.edit']);
             $routes->post('update/(:num)', 'MaintenanceLogController::update/$1', ['filter' => 'permission:logs.edit']);
             $routes->post('update-status/(:num)', 'MaintenanceLogController::updateStatus/$1', ['filter' => 'permission:logs.review']);
+            $routes->post('close-ticket/(:num)', 'MaintenanceLogController::closeTicket/$1', ['filter' => 'permission:logs.review']);
+            $routes->post('reopen-ticket/(:num)', 'MaintenanceLogController::reopenTicket/$1', ['filter' => 'permission:logs.review']);
             $routes->post('delete/(:num)', 'MaintenanceLogController::delete/$1', ['filter' => 'permission:logs.delete']);
         });
 });

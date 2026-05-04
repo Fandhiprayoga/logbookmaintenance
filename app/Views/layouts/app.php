@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="<?= base_url('assets/css/custom.css') ?>">
 </head>
 
-<body>
+<body class='sidebar-mini'>
   <div id="app">
     <div class="main-wrapper">
       <div class="navbar-bg"></div>

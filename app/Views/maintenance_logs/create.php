@@ -2,7 +2,7 @@
   <div class="col-12 col-md-10 offset-md-1">
     <div class="card">
       <div class="card-header">
-        <h4>Tambah Log Maintenance</h4>
+        <h4>Tambah Ticket</h4>
       </div>
       <div class="card-body">
         <form action="<?= base_url('maintenance-logs/store') ?>" method="post" enctype="multipart/form-data">
@@ -92,7 +92,6 @@
                   <option value="Pending" <?= old('status') === 'Pending' ? 'selected' : '' ?>>Pending</option>
                   <option value="On Progress" <?= old('status') === 'On Progress' ? 'selected' : '' ?>>On Progress</option>
                   <option value="Testing" <?= old('status') === 'Testing' ? 'selected' : '' ?>>Testing</option>
-                  <option value="Completed" <?= old('status') === 'Completed' ? 'selected' : '' ?>>Completed</option>
                 </select>
               </div>
             </div>

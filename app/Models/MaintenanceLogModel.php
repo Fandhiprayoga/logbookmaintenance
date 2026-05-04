@@ -22,6 +22,8 @@ class MaintenanceLogModel extends Model
         'downtime_duration',
         'attachment',
         'created_by',
+        'closed_at',
+        'closed_by',
     ];
     protected $useTimestamps = true;
 
